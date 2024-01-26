@@ -106,7 +106,7 @@ define('WP_CONTENT_DIR', '/srv/www/wp-content/example1.test');
 Create the `wp-contents` directory for each site, and set the right permissions and ownership for a standard site. That means we can manage the default themes and plugins via wordpress, and generally do more from within. The core files of wordpress are unchanged.
 
 ```
-sudo mkdir -r /srv/www/wp-content/example1.test
+sudo mkdir -p /srv/www/wp-content/example1.test
 sudo cp -r /var/lib/wordpress/wp-content/* /srv/www/wp-content/example1.test
 
 # remove symlink and create real copy of plugins
