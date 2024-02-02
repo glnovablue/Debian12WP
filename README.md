@@ -103,7 +103,30 @@ define('WP_CONTENT_DIR', '/srv/www/wp-content/example1.test');
 ?>
 ```
 
-Create the `wp-content` directory for each site, and set the right permissions and ownership for a standard site. That means we can manage the default themes and plugins via wordpress, and generally do more from within. The core files of wordpress are unchanged.
+##### create the equivalent databases and users in mariadb
+
+create an .sql file with the statements, or write them directly into the mariadb server.
+
+```
+CREATE DATABASE wordpress_ex1;
+CREATE USER 'wordpress'@localhost' IDENTIFIED BY 'password'
+GRANT ALL PRIVILEGES ON wordpress.* TO 'wordpress'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+(note the user and password are created here, and referenced in the wordpress php config file above. They need to match.)
+
+if you've written it to an .sql file, you can load the statements as follows
+
+```
+sudo mysql -u root -p < <file>.sql
+```
+
+where <file> is the name of your .sql file without the extension.
+
+##### non-core wordpress files for each site
+
+Create the `wp-contents` directory for each site, and set the right permissions and ownership for a standard site. That means we can manage the default themes and plugins via wordpress, and generally do more from within. The core files of wordpress are unchanged.
 
 ```
 sudo mkdir -p /srv/www/wp-content/example1.test
@@ -111,25 +134,37 @@ sudo cp -r /var/lib/wordpress/wp-content/* /srv/www/wp-content/example1.test
 
 # remove symlink and create real copy of plugins
 sudo rm -rf /srv/www/wp-content/example1.test/plugins/*
-sudo cp -r /usr/share/wordpress/wp-content/plugins/* /srv/www/wp-content/example1.test/plugins/*
+sudo cp /usr/share/wordpress/wp-content/plugins/* /srv/www/wp-content/example1.test/plugins/*
 
 # remove symlink and create real copy of themes
 sudo rm -rf /srv/www/wp-content/example1.test/themes/*
-sudo cp -r /usr/share/wordpress/wp-content/themes/* /srv/www/wp-content/example1.test/themes/*
+sudo cp /usr/share/wordpress/wp-content/themes/* /srv/www/wp-content/example1.test/themes/
 
 sudo chown -R www-data:www-data /srv/www/wp-content/example1.test
 ```
 
+#### Create an entry in the /etc/hosts file for each site
+
+open the '/etc/hosts' file as root, and adjust it to add lines for each website.
+
+```
+127.0.0.1	example1.test
+127.0.0.1	example2.test
+etc.
+```
+
 #### enable that shit and restart apache
 
+Enable necessary mods
 ```
-sudo a2enmod rewrite && sudo a2enmod vhost_alias && sudo systemctl apache2 restart
+sudo a2enmod rewrite && sudo a2enmod vhost_alias
 ```
 
-- disable the default conf and enable your conf
+- disable the default conf and enable your conf and restart apache2
 ```
 sudo a2dissite 000-default
 sudo a2ensite <site>
+sudo systemctl restart apache2
 ```
 
 `<site>` is in our example `example1`
